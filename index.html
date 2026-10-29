@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>NETRUNNER: 달로 가는 길</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Noto+Sans+KR:wght@400;700;900&display=swap">
+<style>
+:root{color-scheme:dark;--bg:#07060d;--pn:#120f1f;--ln:#2d2350;--mg:#ff2a6d;--cy:#05d9e8;--ye:#f5e642;--tx:#d9d4ee;--dim:#7d7596;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.7 'Share Tech Mono','Noto Sans KR',monospace;min-height:100vh}
+body::after{content:"";position:fixed;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(0,0,0,.18) 0 1px,transparent 1px 3px)}
+#app{max-width:760px;margin:0 auto;padding:16px}
+h1{font:900 30px/1.1 'Noto Sans KR',sans-serif;margin:8px 0 2px;color:var(--ye);text-shadow:2px 0 var(--mg),-2px 0 var(--cy)}
+h2{font:700 20px 'Noto Sans KR',sans-serif;margin:20px 0 6px;color:var(--cy)}
+p{margin:8px 0}.dim{color:var(--dim)}.bad{color:var(--mg)}.ok{color:var(--cy)}.ye{color:var(--ye)}
+.top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+button{font:inherit;color:var(--cy);background:transparent;border:1px solid var(--cy);padding:9px 16px;cursor:pointer}
+button:hover:not(:disabled){background:var(--cy);color:var(--bg)}button:disabled{opacity:.35;cursor:not-allowed}
+button:focus-visible{outline:2px solid var(--ye);outline-offset:2px}
+.chs{display:flex;gap:6px;margin:12px 0;flex-wrap:wrap}
+.chip{width:40px;height:40px;padding:0;border-color:var(--ln);color:var(--dim)}
+.chip.done{border-color:var(--cy);color:var(--cy)}.chip.on{border-color:var(--ye);color:var(--ye);box-shadow:0 0 8px rgba(245,230,66,.4)}
+.box{background:var(--pn);border:1px solid var(--ln);padding:14px;margin:12px 0}
+.gauge,.tbar{height:22px;background:var(--ln);position:relative;margin:12px 0}.gauge i{display:block;height:100%;width:0;background:var(--mg)}
+.zone{position:absolute;top:0;bottom:0;left:30%;width:45%;background:rgba(5,217,232,.35);border:1px solid var(--cy)}
+.mk{position:absolute;top:-4px;bottom:-4px;width:4px;background:var(--ye)}
+.nodes{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:12px 0}
+.node{height:64px;font-size:24px;color:var(--mg);border-color:var(--mg)}.node.hit{color:var(--bg);background:var(--cy);border-color:var(--cy)}
+.q{border-left:3px solid var(--ln);padding:4px 12px;margin:12px 0}.q b{font-weight:700}
+.sum{font-family:'Noto Sans KR',sans-serif}
+.note{font-size:12px;color:var(--dim)}
+.end{font:900 clamp(26px,7vw,44px) 'Noto Sans KR',sans-serif;text-align:center;color:var(--ye);margin:26px 0;text-shadow:3px 0 var(--mg),-3px 0 var(--cy)}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.grid{display:grid;gap:5px;margin:10px 0}.cell{width:100%;aspect-ratio:1;padding:0;font-size:18px;border-color:var(--ln);color:var(--tx)}
+.cell.act{border-color:var(--ye);color:var(--ye);box-shadow:0 0 8px rgba(245,230,66,.45)}.cell.used{opacity:.2}.cell.hint{background:var(--mg);color:var(--bg);border-color:var(--mg)}
+.slots{display:flex;gap:5px;flex-wrap:wrap;margin:6px 0}.slot{width:40px;height:40px;border:1px solid var(--cy);display:grid;place-items:center;color:var(--ye)}
+.tm{height:8px;background:var(--ln)}.tm i{display:block;height:100%;background:var(--cy);width:100%}
+.dm{padding:6px 10px;border:1px solid var(--ln);margin:4px 0;display:flex;justify-content:space-between}.dm.ok{border-color:var(--cy);color:var(--cy)}
+.sb{height:6px;background:var(--ln);margin-top:8px}.sb i{display:block;height:100%;width:0;background:var(--mg)}
+</style></head>
+<body><div id="app"></div>
+<audio id="bgm" preload="auto" src="bgm.mp3"></audio>
+<script>
+const $=s=>document.querySelector(s),A=$('#app');
+const C={데이비드:'var(--cy)',루시:'var(--ye)',레베카:'var(--mg)',메인:'#ff9f43',글로리아:'#b8a9e8'};
+const EP=[
+{t:"깨어난 현실",s:"브레인댄스로 하룻밤을 버틴 데이비드가 눈을 뜬 곳은 고장 난 세탁기가 있는 낡은 아파트였다. 과로하는 어머니, 아카데미에서 이어지는 괴롭힘. 그러던 중 군용 임플란트가 손에 들어오고, 약하기만 하던 몸이 처음으로 빨라진다.",q:[["데이비드","..."],["글로리아","데이비드, 넌 특별한 아이야. 절대 그걸 잊지 마."]]},
+{t:"되돌릴 수 없는 길",s:"새 몸으로 아카데미에 돌아가 복수를 하지만, 그 대가는 컸다. 어머니가 갱단 총격전에 휘말려 세상을 떠나고, 데이비드는 더 이상 돌아갈 곳이 없어진다. 그는 거리의 엣지러너들 곁으로 향한다.",q:[["데이비드",".."],["글로리아","..."]]},
+{t:"팀의 문을 두드리다",s:"데이비드의 임플란트는 메인 일행의 눈에 띄었다. 오해와 추궁 끝에 그는 팀에 넣어 달라고 매달린다. 한편 아라사카 쪽에서는 그를 다시 학교로 끌어들일 계획을 꾸미기 시작한다. 이 팀의 파티에서 그는 레베카를 처음 만난다.",q:[["메인","내일부터 바로 일 시작이다. 허튼짓하면 그 산데비스탄은 네 몸째로 뜯어내 버릴 줄 알아."],["레베카","헤에, 네가 그 신입이야? 생각보다 귀엽게 생겼네!"]]},
+{t:"루시의 교습",s:"메인은 데이비드의 훈련을 루시에게 맡긴다. 넷에 잠수하는 법, 죽지 않는 법을 배우는 사이 두 사람은 가까워진다. 루시는 처음으로 자신이 꿈꾸는 곳, 달을 이야기한다.",q:[["루시","내 꿈은 저기(달)에 가는 거야. 여긴 너무 좁고, 기업의 냄새로 가득 차 있어서 숨이 막혀. 하지만 저기선 진짜 나로 살 수 있을 것 같아."],["데이비드","내가 널 달에 데려가 줄게. 약속해."]]},
+{t:"영리한 제안",s:"작전 회의에서 데이비드가 뜻밖의 제안을 던지고, 팀은 그의 머리를 믿어 보기로 한다. 일이 잘 풀릴수록 팀은 하나가 되어 가고, 데이비드는 처음으로 자신이 있을 자리를 얻었다고 느낀다. 하지만 어둠은 팀의 한 사람 곁에서 자라고 있었다.",q:[["메인","닥쳐! 난 멀쩡해. 그냥 피곤해서 그런 것뿐이니까 상관하지 마!"],["루시","메인의 상태가 심상치 않아. 억제제도 더 이상 안 듣는 것 같고... 데이비드, 너도 임플란트를 너무 과하게 쓰지 마."]]},
+{t:"무너지는 리더",s:"메인의 상태가 이상해진다. 크롬에 기대어 살던 그는 임무 중에 현실과 적을 구분하지 못하는 사이버사이코시스에 빠져 간다. 데이비드를 살리기 위해 마지막 힘을 쓴 메인은 그렇게 팀을 떠나고, 루시는 팀의 해산을 선언한다.",q:[["메인","내 크롬(임플란트)은 전부 네 거야. 하지만 내 꼴은 나지 마라, 꼬맹아..."],["데이비드","싫어요! 같이 가요! 메인!!!"]]},
+{t:"더 많은 크롬",s:"메인을 잃은 데이비드는 더 강해져야 한다고 믿는다. 그는 메인의 사이버웨어까지 받아들이고, 팀을 이끄는 에이스로 올라선다. 그만큼 그의 몸은 한계에 가까워지고 있었다.",q:[["데이비드","괜찮아, 레베카. 난 메인하고는 달라. 난 '특별'하니까, 이 정도는 버틸 수 있어."],["레베카","그 몸, 이제 메인보다 더 크잖아... 메인은 그렇게 가버렸어, 데이비드. 난 네가 그렇게 되는 거 보고 싶지 않아."]]},
+{t:"경고",s:"루시와 레베카가 데이비드의 변화를 짚으며 멈추라고 말한다. 그러나 그는 듣지 않는다. 사이버사이코시스의 징후는 이미 눈에 보이고 있었고, 두 사람은 그를 지킬 방법을 찾기 시작한다.",q:[["루시","미안해, 데이비드... 널 위해서야. 조금만 기다려줘"],["레베카","야! 데이비드, 정신 차려! 눈 똑바로 뜨라고! 내 목소리 안 들려?!"]]},
+{t:"잘못된 의뢰",s:"루시가 아라사카에 붙잡히고, 그녀의 숨겨진 임무와 과거가 드러난다. 팀은 파라데이의 의뢰를 하러 가지만, 처음부터 무언가 어긋나 있음을 깨닫는다. 데이비드는 사이버사이코시스의 끝자락에서 루시를 구하러 나선다.",q:[["데이비드","상관없어. 이 스켈레톤인지 뭔지 당장 내 몸에 박아 넣어."],["루시","데이비드... 안 돼, 제발 오지 마... 날 찾지 마..."]]},
+{t:"나의 달",s:"데이비드는 아라사카 타워에 쳐들어가 루시를 구한다. 하지만 기쁨도 잠시, 아담 스매셔가 나타나 레베카가 목숨을 잃고, 데이비드는 마지막 힘으로 그와 맞선다. 시간이 흐른 뒤, 루시는 홀로 달에 서서 곁에 있는 그의 모습을 본다.",q:[["레베카","이야... 데이비드... 우리 진짜... 진짜 멀리까지 왔네..."],["데이비드","나이트 시티의 전설이 되는 건 애초에 관심 없었어. 난 그냥... 널 구하고 싶었을 뿐이야."],["루시","미안해... 같이 가고 싶었어."]]}];
+const R=n=>Math.floor(Math.random()*n);
+let S={done:[],hd:{}},cur=0,iv=0,bt=0,mus=0,started=0,endl=0,score=0,songEnd=0;
+try{Object.assign(S,JSON.parse(localStorage.getItem('nrep_save2')||'{}'))}catch(e){}
+const save=()=>{try{localStorage.setItem('nrep_save2',JSON.stringify(S))}catch(e){}};
+const esc=t=>String(t).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+const lock=k=>k>0&&!S.done[k-1];
+const au=$('#bgm'),ORD=[[0,3,1],[3,2,0],[1,3,2]],NH=3;
+cur=Math.max(0,S.done.findIndex(x=>!x));if(S.done.filter(x=>x).length>=10)cur=0;
+function stop(){clearInterval(iv);clearInterval(bt)}
+function play(){au.volume=.6;au.play().then(()=>{mus=1;mb()},()=>{mus=0;mb()})}
+function tog(){if(mus){au.pause();mus=0}else play();mb()}
+function mb(){const b=$('#mb');if(b)b.textContent=mus?'♪ 음악 끄기':'♪ 음악 켜기'}
+const fm=s=>Math.floor(s/60)+':'+String(Math.floor(s%60)).padStart(2,'0');
+function tick(){const d=au.duration||247,i=$('#sbi'),t=$('#stm');if(i)i.style.width=(au.currentTime/d*100)+'%';if(t)t.textContent='♪ '+fm(au.currentTime)+' / '+fm(d)}
+au.ontimeupdate=tick;
+au.onended=()=>{songEnd=1;mus=0;mb();if(endl)ending();else{const t=$('#toast');if(t)t.textContent='노래가 끝났어요. 마지막 화까지 클리어하면 엔딩이 나와요.'}};
+document.addEventListener('pointerdown',()=>{if(!started){started=1;play()}},{once:true});
+function head(){return `<div class="top"><div><h1>NETRUNNER</h1><p class="dim">데이비드 마르티네즈 · 달로 가는 길 (총 10화)</p></div><button id="mb" onclick="tog()">♪ 음악 켜기</button></div><div class="sb"><i id="sbi"></i></div><p class="note" id="stm">♪ 0:00 / 4:07</p><p id="toast" class="ye"></p>`}
+function ui(){
+  stop();endl=0;const e=EP[cur],hd=S.hd[cur]||0;
+  let h=head()+`<div class="chs">${EP.map((x,k)=>`<button class="chip ${S.done[k]?'done':''} ${k==cur?'on':''}" ${lock(k)?'disabled':''} onclick="pick(${k})">${k+1}</button>`).join('')}</div><h2>${cur+1}화 · ${e.t}</h2>`;
+  if(!S.done[cur]){
+    h+=`<div class="box"><p class="ye">해킹 ${hd+1}/${NH} · 보안망을 뚫어야 기록이 열립니다.</p><div id="hk"></div></div>`;
+    A.innerHTML=h;mb();tick();
+    runHack(ORD[cur%3][hd],()=>{S.hd[cur]=hd+1;if(hd+1>=NH)S.done[cur]=1;save();ui()},$('#hk'));return}
+  h+=`<p class="sum">${esc(e.s)}</p>`;
+  e.q.forEach(q=>h+=`<div class="q" style="border-color:${C[q[0]]}"><b style="color:${C[q[0]]}">${q[0]}</b><br>“${esc(q[1])}”</div>`);
+  h+=`<p class="note">※ 이 대사들은 원작 대사를 옮긴 것이 아니라, 장면의 여운을 담아 새로 쓴 문장입니다.</p>
+  <div class="row"><button onclick="${cur==9?'endlessMode()':'pick('+(cur+1)+')'}">${cur==9?'노래가 끝날 때까지 해킹 계속':'다음 화'}</button>${cur==9?'<button onclick="ending()">엔딩 바로 보기</button>':''}</div>`;
+  A.innerHTML=h;mb();tick();
+}
+function pick(k){cur=k;ui()}
+function endlessMode(){
+  stop();endl=1;if(songEnd){ending();return}
+  A.innerHTML=head()+`<h2>잔여 해킹</h2><p class="dim">노래가 끝날 때까지 해킹을 계속하세요. 끝나면 자동으로 엔딩으로 넘어갑니다.</p><p class="ye">해킹 성공 ${score}회</p><div class="box"><div id="hk"></div></div><div class="row"><button onclick="ending()">엔딩 바로 보기</button></div>`;
+  mb();tick();runHack(R(4),()=>{score++;endlessMode()},$('#hk'));
+}
+function runHack(t,done,H){
+  if(t==0){let g=0;H.innerHTML=`<p>게이지가 가득 찰 때까지 마구 누르세요.</p><div class="gauge"><i id="g"></i></div><button onclick="m()">해킹!</button>`;
+    window.m=()=>{g=Math.min(100,g+10);$('#g').style.width=g+'%';if(g>=100)setTimeout(done,200)}}
+  else if(t==1){let n=0;H.innerHTML=`<p>빛나는 노드를 아무 순서로 전부 누르세요.</p><div class="nodes">${'<button class="node" onclick="nd(this)">◆</button>'.repeat(6)}</div>`;
+    window.nd=b=>{if(b.classList.contains('hit'))return;b.classList.add('hit');if(++n>=6)setTimeout(done,200)}}
+  else if(t==2){let x=0,d=1;H.innerHTML=`<p>노란 막대가 파란 구역에 있을 때 정지를 누르세요. 구역이 넓어서 쉬워요.</p><div class="tbar"><div class="zone"></div><div class="mk" id="mk"></div></div><button onclick="st()">정지</button><p id="hm" class="dim"></p>`;
+    iv=setInterval(()=>{x+=d*1.4;if(x>=100||x<=0)d=-d;const k=$('#mk');if(k)k.style.left=x+'%'},20);
+    window.st=()=>{if(x>=28&&x<=77){clearInterval(iv);done()}else $('#hm').textContent='아쉽네요. 다시 눌러 보세요.'}}
+  else breach(H,done);
+}
+function path(sz,L){
+  for(;;){let p=[],u=new Set,m='r',row=0,col=0;
+    for(let i=0;i<L;i++){let o=[];for(let x=0;x<sz;x++){const r=m=='r'?row:x,c=m=='r'?x:col;if(!u.has(r+','+c))o.push([r,c])}
+      if(!o.length)break;const q=o[R(o.length)];p.push(q);u.add(q[0]+','+q[1]);if(m=='r'){col=q[1];m='c'}else{row=q[0];m='r'}}
+    if(p.length==L)return p}
+}
+function breach(H,done){
+  const sz=5,L=5,cap=8,MAX=60,HX=["1C","55","BD","E9","7A","FF"];let g,sol,dm,buf,used,m,row,col,dn,t,hint,msg='';
+  function clr(){buf=[];used=new Set();m='r';row=0;col=0;dn=new Set();hint=null}
+  function init(){g=Array.from({length:sz},()=>Array.from({length:sz},()=>HX[R(6)]));sol=path(sz,L);const q=sol.map(([r,c])=>g[r][c]);dm=[q.slice(0,2),q.slice(1,4)];clr();t=MAX}
+  function draw(){
+    let h=`<p>코드를 눌러 버퍼에 쌓고, 아래 데몬 순서를 만들면 성공이에요. 첫 선택은 맨 윗줄에서, 이후엔 가로와 세로를 번갈아 고르세요. 어려우면 힌트를 누르세요.</p><div class="tm"><i id="bt"></i></div><div class="grid" style="grid-template-columns:repeat(${sz},1fr);max-width:${sz*62}px">`;
+    for(let r=0;r<sz;r++)for(let c=0;c<sz;c++){const u=used.has(r+','+c),a=!u&&(m=='r'?r==row:c==col),hi=hint&&hint[0]==r&&hint[1]==c;
+      h+=`<button class="cell ${a?'act':''} ${u?'used':''} ${hi?'hint':''}" ${a?'':'disabled'} onclick="bp(${r},${c})">${g[r][c]}</button>`}
+    h+=`</div><p class="dim">버퍼</p><div class="slots">`;for(let i=0;i<cap;i++)h+=`<div class="slot">${buf[i]?buf[i].v:''}</div>`;
+    h+=`</div><p class="dim">데몬 · 순서대로 연속 입력</p>`;
+    dm.forEach((d,i)=>h+=`<div class="dm ${dn.has(i)?'ok':''}"><span>${i?'시스템 취약화':'데이터 유출'}</span><span>${d.join(' ')} ${dn.has(i)?'✔':''}</span></div>`);
+    h+=`<p class="bad">${msg}</p><div class="row"><button onclick="bh()">힌트 (무료)</button><button class="mg" onclick="br()">다시 시작</button></div>`;
+    H.innerHTML=h;msg='';
+  }
+  window.bp=(r,c)=>{buf.push({r,c,v:g[r][c]});used.add(r+','+c);hint=null;if(m=='r'){col=c;m='c'}else{row=r;m='r'}
+    const s=buf.map(x=>x.v).join(',');dm.forEach((d,i)=>{if(s.includes(d.join(',')))dn.add(i)});
+    if(dn.size==dm.length){clearInterval(bt);draw();setTimeout(done,450)}
+    else if(buf.length>=cap){clr();msg='버퍼가 가득 찼어요. 다시 시도해 보세요.';draw()}else draw()};
+  window.bh=()=>{if(buf.every((x,i)=>x.r==sol[i][0]&&x.c==sol[i][1])&&sol[buf.length])hint=sol[buf.length];else msg='경로에서 벗어났어요. 다시 시작을 눌러 주세요.';draw()};
+  window.br=()=>{clr();draw()};
+  init();draw();
+  bt=setInterval(()=>{t-=.1;const e=$('#bt');if(e)e.style.width=Math.max(0,t/MAX*100)+'%';if(t<=0){msg='시간 초과! 새 그리드로 다시 시작합니다.';init();draw()}},100);
+}
+function ending(){
+  stop();endl=0;
+  A.innerHTML=head()+`<h1>나의 달</h1><p class="sum">데이비드는 끝까지 달렸고, 루시는 그가 데려가 주겠다던 곳에 홀로 도착했다. 도시는 두 사람을 곧 잊겠지만, 달은 기억할 것이다.</p>
+  <div class="end">그리고 루시는 달에 도착했다</div>${score?`<p class="dim">잔여 해킹 ${score}회 성공</p>`:''}
+  <p class="dim">BGM · I Really Want to Stay at Your House</p>
+  <div class="row"><button onclick="pick(0)">처음부터 다시 보기</button></div>`;mb();tick();
+}
+ui();
+</script></body></html>
